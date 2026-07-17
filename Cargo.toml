@@ -1,0 +1,92 @@
+[package]
+name = "forj"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Fusion Ops Runtime for Joint Industrial Intelligence — AI inference on PLCs, sensors, cameras, robots"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/javier/forj"
+keywords = ["industrial","ai","inference","plc","edge","modbus","opc-ua","forja"]
+categories = ["network-programming","hardware-support","science::robotics"]
+readme = "README.md"
+documentation = "https://docs.rs/forj"
+
+[features]
+default = ["modbus-tcp","onnx"]
+modbus-tcp = ["dep:tokio-modbus"]
+modbus-rtu = ["dep:tokio-modbus","dep:tokio-serial"]
+opcua      = ["dep:opcua-client"]
+mqtt       = ["dep:rumqttc"]
+canopen    = ["dep:socketcan"]
+onnx       = ["dep:ort"]
+candle     = ["dep:candle-core"]
+tract      = ["dep:tract-onnx"]
+openvino   = ["dep:openvino"]
+tls        = ["dep:rustls","dep:tokio-rustls"]
+mtls       = ["tls","dep:rustls-pemfile"]
+feat-tracing    = ["dep:tracing"]
+otel       = ["feat-tracing","dep:opentelemetry","dep:tracing-opentelemetry"]
+prometheus = ["dep:prometheus"]
+realtime   = []
+full       = ["modbus-tcp","modbus-rtu","opcua","mqtt","onnx","candle","tract","tls","mtls","feat-tracing","otel","prometheus","realtime"]
+
+[dependencies]
+tokio = { version = "1", features = ["full", "sync"] }
+futures = "0.3"
+thiserror = "2"
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+bytes = "1"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+parking_lot = "0.12"
+dashmap = "6"
+tokio-util = { version = "0.7", features = ["rt"] }
+async-trait = "0.1"
+once_cell = "1"
+tracing = { version = "0.1", optional = true }
+async-stream = "0.3"
+libc = "0.2"
+
+tokio-modbus = { version = "0.14", optional = true }
+tokio-serial = { version = "5", optional = true }
+opcua-client = { version = "0.9", optional = true }
+rumqttc = { version = "0.24", optional = true }
+socketcan = { version = "2", optional = true }
+
+ort = { version = "2.0.0-rc.12", features = ["download-binaries"], optional = true }
+candle-core = { version = "0.7", optional = true }
+tract-onnx = { version = "0.23", package = "tract-onnx", optional = true }
+openvino = { version = "0.6", optional = true }
+
+rustls = { version = "0.23", optional = true }
+tokio-rustls = { version = "0.26", optional = true }
+rustls-pemfile = { version = "2", optional = true }
+
+opentelemetry = { version = "0.24", optional = true }
+tracing-opentelemetry = { version = "0.25", optional = true }
+prometheus = { version = "0.13", features = ["process"], optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1"
+tempfile = "3"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[[bench]]
+name = "pipeline_throughput"
+harness = false
+
+[[example]]
+name = "modbus_vision"
+path = "examples/modbus_vision.rs"
+
+[[example]]
+name = "opcua_defect_detection"
+path = "examples/opcua_defect_detection.rs"
+
+[[example]]
+name = "mqtt_robot_control"
+path = "examples/mqtt_robot_control.rs"
